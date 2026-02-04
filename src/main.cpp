@@ -1,6 +1,8 @@
 #include "main.h"
+#include "custom_lvgl_selector.hpp"
 
 // Grid Walkers
+constexpr bool USE_CUSTOM_SELECTOR = true;  // true = LVGL selector, false = EZ selector
 
 // Chassis constructor
 ez::Drive chassis(
@@ -55,7 +57,11 @@ chassis.odom_tracker_back_set(&horiz_tracker);
 
   // Initialize chassis and auton selector
   chassis.initialize();
-  ez::as::initialize();
+  if (USE_CUSTOM_SELECTOR) {
+    custom_lvgl::selector_init("Grid Walkers");
+  } else {
+    ez::as::initialize();
+  }
   master.rumble(chassis.drive_imu_calibrated() ? "." : "---");
 }
 
@@ -112,7 +118,12 @@ void autonomous() {
   to be consistent
   */
 
-  ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
+  if (USE_CUSTOM_SELECTOR) {
+    custom_lvgl::selector_show_lock();
+    custom_lvgl::selector_selected_auton_call();
+  } else {
+    ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
+  }
 }
 
 /**
@@ -135,6 +146,10 @@ void screen_print_tracker(ez::tracking_wheel *tracker, std::string name, int lin
  */
 void ez_screen_task() {
   while (true) {
+    if (USE_CUSTOM_SELECTOR) {
+      pros::delay(ez::util::DELAY_TIME);
+      continue;
+    }
     // Only run this when not connected to a competition switch
     if (!pros::competition::is_connected()) {
       // Blank page for odom debugging
@@ -175,6 +190,7 @@ pros::Task ezScreenTask(ez_screen_task);
  * - gives you a GUI to change your PID values live by pressing X
  */
 void ez_template_extras() {
+  if (USE_CUSTOM_SELECTOR) return;
   // Only run this when not connected to a competition switch
   if (!pros::competition::is_connected()) {
     // PID Tuner
