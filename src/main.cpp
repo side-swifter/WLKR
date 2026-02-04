@@ -39,7 +39,7 @@ chassis.odom_tracker_back_set(&horiz_tracker);
   chassis.opcontrol_curve_default_set(0.0, 0.0);  // Defaults for curve. If using tank, only the first parameter is used. (Comment this line out if you have an SD card!)
 
   // Set the drive to your own constants from autons.cpp!
-  default_constants();
+  Tuskerpid();
 
   // These are already defaulted to these buttons, but you can change the left/right curve buttons here!
   // chassis.opcontrol_curve_buttons_left_set(pros::E_CONTROLLER_DIGITAL_LEFT, pros::E_CONTROLLER_DIGITAL_RIGHT);  // If using tank, only the left side is used.
@@ -49,7 +49,7 @@ chassis.odom_tracker_back_set(&horiz_tracker);
   ez::as::auton_selector.autons_add({
 
       {"Red Right \n\n Next to the park zone", RL},
-      {"Measure Offsets \n\n", mesure_offsets},
+      {"Measure Offsets \n\n", measure_offsets},
 
   });
 
@@ -254,16 +254,14 @@ void opcontrol() {
 
   
     // pneumatics control
- if (master.get_digital(DIGITAL_L1)) {
-  scraper.set(!scraper.get());
-  } 
-  if (master.get_digital(DIGITAL_L2)) {
-  switcher.set(!switcher.get());
-  } 
+    // scraper
+    scraper.button_toggle(master.get_digital(DIGITAL_L1));
 
-  if (master.get_digital(DIGITAL_LEFT)) {
-  descore.set(!descore.get());
-  } 
+    // switcher
+    switcher.button_toggle(master.get_digital(DIGITAL_L2)); 
+
+    // descore
+    descore.button_toggle(master.get_digital(DIGITAL_RIGHT));
 
 
 

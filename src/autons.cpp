@@ -24,7 +24,7 @@ void setup(){
 }
 
 
-void default_constants() {
+void Tuskerpid() {
   // P, I, D, and Start I
   chassis.pid_drive_constants_set(20.0, 0.0, 100.0);         // Fwd/rev constants, used for odom and non odom motions
   chassis.pid_heading_constants_set(11.0, 0.0, 20.0);        // Holds the robot straight while going forward without odom
@@ -84,7 +84,12 @@ void measure_offsets() {
     chassis.drive_imu_reset();
     chassis.drive_sensor_reset();
     chassis.drive_brake_set(MOTOR_BRAKE_HOLD);
+    if (chassis.odom_tracker_left != nullptr) chassis.odom_tracker_left->reset();
+    if (chassis.odom_tracker_right != nullptr) chassis.odom_tracker_right->reset();
+    if (chassis.odom_tracker_back != nullptr) chassis.odom_tracker_back->reset();
+    if (chassis.odom_tracker_front != nullptr) chassis.odom_tracker_front->reset();
     chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+    
     double imu_start = chassis.odom_theta_get();
     double target = i % 2 == 0 ? 90 : 270;  // Switch the turn target every run from 270 to 90
 
@@ -115,11 +120,18 @@ void measure_offsets() {
   b_offset /= iterations;
   f_offset /= iterations;
 
+  pros::lcd::initialize();
+  pros::lcd::set_text(0, "Offsets (in)");
+  pros::lcd::set_text(1, "Left Distance: " + std::to_string(l_offset));
+  pros::lcd::set_text(2, "Back Distance: " + std::to_string(b_offset));
+
+
   // Set new offsets to trackers that exist
   if (chassis.odom_tracker_left != nullptr) chassis.odom_tracker_left->distance_to_center_set(l_offset);
   if (chassis.odom_tracker_right != nullptr) chassis.odom_tracker_right->distance_to_center_set(r_offset);
   if (chassis.odom_tracker_back != nullptr) chassis.odom_tracker_back->distance_to_center_set(b_offset);
   if (chassis.odom_tracker_front != nullptr) chassis.odom_tracker_front->distance_to_center_set(f_offset);
+
 }
 
 void RL() {

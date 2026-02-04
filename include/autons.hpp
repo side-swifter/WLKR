@@ -1,6 +1,11 @@
 #pragma once
 
-void default_constants();
 
+// My PID constants
+void Tuskerpid();
+
+
+
+// my acc autos
 void RL();
-void mesure_offsets();
+void measure_offsets();
