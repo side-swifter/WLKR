@@ -2,6 +2,8 @@
 
 #include "main.h"
 #include "assets_splash.h"
+#include "assets_grd_wlkr.h"
+#include "assets_arrow.h"
 
 #include <string>
 #include <vector>
@@ -15,18 +17,22 @@ lv_obj_t* splash_screen = nullptr;
 lv_obj_t* selector_screen = nullptr;
 lv_obj_t* lock_screen = nullptr;
 
-lv_obj_t* title_label = nullptr;
+lv_obj_t* top_bar = nullptr;
+lv_obj_t* top_title = nullptr;
+lv_obj_t* top_time = nullptr;
+lv_obj_t* top_batt = nullptr;
+lv_obj_t* page_label = nullptr;
 lv_obj_t* card = nullptr;
-lv_obj_t* auton_title_label = nullptr;
-lv_obj_t* auton_detail_label = nullptr;
+lv_obj_t* desc_label = nullptr;
+lv_obj_t* auton_lines[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
 
 int selected_index = 0;
 
-std::string selector_title = "Grid Walkers";
+std::string selector_title = "29019X";
 
 void set_screen_bg_black(lv_obj_t* scr) {
   lv_obj_clear_flag(scr, LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_style_bg_color(scr, lv_color_black(), 0);
+  lv_obj_set_style_bg_color(scr, lv_color_make(8, 8, 8), 0);
   lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, 0);
 }
 
@@ -46,35 +52,39 @@ std::vector<std::string> split_lines(const std::string& input) {
 }
 
 void update_auton_labels() {
-  if (!auton_title_label || !auton_detail_label) return;
+  if (!auton_lines[0]) return;
 
   auto& autons = ez::as::auton_selector.Autons;
   if (autons.empty()) {
-    lv_label_set_text(auton_title_label, "No autons");
-    lv_label_set_text(auton_detail_label, "");
+    lv_label_set_text(auton_lines[0], "No autons");
+    for (int i = 1; i < 5; i++) lv_label_set_text(auton_lines[i], "");
     return;
   }
 
   if (selected_index < 0) selected_index = static_cast<int>(autons.size()) - 1;
   if (selected_index >= static_cast<int>(autons.size())) selected_index = 0;
 
+  if (page_label) {
+    std::string page_text = "Page " + std::to_string(selected_index + 1);
+    lv_label_set_text(page_label, page_text.c_str());
+  }
+
   const std::string& name = autons[selected_index].Name;
   std::vector<std::string> lines = split_lines(name);
 
-  std::string main_line;
-  std::string detail_lines;
+  std::vector<std::string> clean;
   for (const auto& line : lines) {
-    if (main_line.empty() && !line.empty()) {
-      main_line = line;
-    } else if (!line.empty()) {
-      if (!detail_lines.empty()) detail_lines += "\n";
-      detail_lines += line;
+    if (!line.empty()) clean.push_back(line);
+  }
+  if (clean.empty()) clean.push_back("Auton");
+
+  for (int i = 0; i < 5; i++) {
+    if (i < static_cast<int>(clean.size())) {
+      lv_label_set_text(auton_lines[i], clean[i].c_str());
+    } else {
+      lv_label_set_text(auton_lines[i], "");
     }
   }
-
-  if (main_line.empty()) main_line = "Auton";
-  lv_label_set_text(auton_title_label, main_line.c_str());
-  lv_label_set_text(auton_detail_label, detail_lines.c_str());
 }
 
 void arrow_left_cb(lv_event_t* e) {
@@ -101,61 +111,118 @@ void create_splash_screen() {
 void create_selector_screen() {
   selector_screen = lv_obj_create(nullptr);
   set_screen_bg_black(selector_screen);
+  lv_obj_set_style_bg_color(selector_screen, lv_color_black(), 0);
 
-  title_label = lv_label_create(selector_screen);
-  lv_label_set_text(title_label, selector_title.c_str());
-  lv_obj_set_style_text_color(title_label, lv_color_white(), 0);
-  lv_obj_set_style_text_font(title_label, &lv_font_montserrat_36, 0);
-  lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 12);
+  // Top bar
+  top_bar = lv_obj_create(selector_screen);
+  lv_obj_set_size(top_bar, 480, 32);
+  lv_obj_align(top_bar, LV_ALIGN_TOP_MID, 0, 0);
+  lv_obj_set_style_bg_color(top_bar, lv_color_black(), 0);
+  lv_obj_set_style_bg_opa(top_bar, LV_OPA_COVER, 0);
+  lv_obj_set_style_border_width(top_bar, 0, 0);
+  lv_obj_set_style_radius(top_bar, 0, 0);
+
+  top_title = lv_label_create(top_bar);
+  lv_label_set_text(top_title, "Grid Walkers 29019X");
+  lv_obj_set_style_text_color(top_title, lv_color_white(), 0);
+  lv_obj_set_style_text_font(top_title, &lv_font_montserrat_18, 0);
+  lv_obj_align(top_title, LV_ALIGN_LEFT_MID, 10, 0);
+
+  top_time = lv_label_create(top_bar);
+  lv_label_set_text(top_time, "0:12");
+  lv_obj_set_style_text_color(top_time, lv_color_white(), 0);
+  lv_obj_set_style_text_font(top_time, &lv_font_montserrat_18, 0);
+  lv_obj_align(top_time, LV_ALIGN_TOP_MID, 0, 6);
+
+  top_batt = lv_label_create(top_bar);
+  lv_label_set_text(top_batt, "12.6V");
+  lv_obj_set_style_text_color(top_batt, lv_color_white(), 0);
+  lv_obj_set_style_text_font(top_batt, &lv_font_montserrat_18, 0);
+  lv_obj_align(top_batt, LV_ALIGN_RIGHT_MID, -10, 0);
 
   card = lv_obj_create(selector_screen);
-  lv_obj_set_size(card, 320, 150);
-  lv_obj_align(card, LV_ALIGN_CENTER, 0, 10);
+  lv_obj_set_size(card, 440, 150);
+  lv_obj_align(card, LV_ALIGN_TOP_MID, 0, 44);
   lv_obj_set_style_bg_color(card, lv_color_black(), 0);
   lv_obj_set_style_bg_opa(card, LV_OPA_COVER, 0);
   lv_obj_set_style_border_color(card, lv_color_white(), 0);
-  lv_obj_set_style_border_width(card, 3, 0);
-  lv_obj_set_style_radius(card, 18, 0);
+  lv_obj_set_style_border_width(card, 2, 0);
+  lv_obj_set_style_radius(card, 10, 0);
   lv_obj_set_style_pad_all(card, 12, 0);
+  lv_obj_set_style_shadow_width(card, 0, 0);
+  lv_obj_clear_flag(card, LV_OBJ_FLAG_SCROLLABLE);
+  lv_obj_set_scrollbar_mode(card, LV_SCROLLBAR_MODE_OFF);
 
-  auton_title_label = lv_label_create(card);
-  lv_obj_set_style_text_color(auton_title_label, lv_color_white(), 0);
-  lv_obj_set_style_text_font(auton_title_label, &lv_font_montserrat_30, 0);
-  lv_obj_set_width(auton_title_label, 296);
-  lv_label_set_long_mode(auton_title_label, LV_LABEL_LONG_WRAP);
-  lv_obj_align(auton_title_label, LV_ALIGN_TOP_MID, 0, 0);
+  page_label = lv_label_create(card);
+  lv_label_set_text(page_label, "Page 1");
+  lv_obj_set_style_text_color(page_label, lv_color_white(), 0);
+  lv_obj_set_style_text_font(page_label, &lv_font_montserrat_18, 0);
+  lv_obj_align(page_label, LV_ALIGN_TOP_LEFT, 6, 0);
 
-  auton_detail_label = lv_label_create(card);
-  lv_obj_set_style_text_color(auton_detail_label, lv_color_white(), 0);
-  lv_obj_set_style_text_font(auton_detail_label, &lv_font_montserrat_20, 0);
-  lv_obj_set_width(auton_detail_label, 296);
-  lv_label_set_long_mode(auton_detail_label, LV_LABEL_LONG_WRAP);
-  lv_obj_align(auton_detail_label, LV_ALIGN_TOP_MID, 0, 50);
+  for (int i = 0; i < 5; i++) {
+    auton_lines[i] = lv_label_create(card);
+    lv_obj_set_style_text_color(auton_lines[i], lv_color_white(), 0);
+    lv_obj_set_width(auton_lines[i], 420);
+    lv_label_set_long_mode(auton_lines[i], LV_LABEL_LONG_WRAP);
+  }
+  lv_obj_set_style_text_font(auton_lines[0], &lv_font_montserrat_22, 0);
+  lv_obj_set_style_text_font(auton_lines[1], &lv_font_montserrat_18, 0);
+  lv_obj_set_style_text_font(auton_lines[2], &lv_font_montserrat_18, 0);
+  lv_obj_set_style_text_font(auton_lines[3], &lv_font_montserrat_18, 0);
+  lv_obj_set_style_text_font(auton_lines[4], &lv_font_montserrat_18, 0);
+  lv_obj_set_style_text_line_space(auton_lines[1], 4, 0);
+  lv_obj_set_style_text_line_space(auton_lines[2], 4, 0);
+  lv_obj_set_style_text_line_space(auton_lines[3], 4, 0);
+  lv_obj_set_style_text_line_space(auton_lines[4], 4, 0);
 
-  lv_obj_t* left_btn = lv_btn_create(selector_screen);
-  lv_obj_set_size(left_btn, 70, 70);
-  lv_obj_align(left_btn, LV_ALIGN_LEFT_MID, 8, 10);
-  lv_obj_set_style_bg_opa(left_btn, LV_OPA_TRANSP, 0);
-  lv_obj_set_style_border_width(left_btn, 0, 0);
+  lv_obj_align(auton_lines[0], LV_ALIGN_TOP_LEFT, 6, 26);
+  lv_obj_align(auton_lines[1], LV_ALIGN_TOP_LEFT, 6, 52);
+  lv_obj_align(auton_lines[2], LV_ALIGN_TOP_LEFT, 6, 74);
+  lv_obj_align(auton_lines[3], LV_ALIGN_TOP_LEFT, 6, 96);
+  lv_obj_align(auton_lines[4], LV_ALIGN_TOP_LEFT, 6, 118);
+
+  lv_obj_t* bottom_bar = lv_obj_create(selector_screen);
+  lv_obj_set_size(bottom_bar, 480, 80);
+  lv_obj_align(bottom_bar, LV_ALIGN_BOTTOM_MID, 0, 0);
+  lv_obj_set_style_bg_color(bottom_bar, lv_color_black(), 0);
+  lv_obj_set_style_bg_opa(bottom_bar, LV_OPA_COVER, 0);
+  lv_obj_set_style_border_width(bottom_bar, 0, 0);
+  lv_obj_set_style_radius(bottom_bar, 0, 0);
+
+  lv_obj_t* left_btn = lv_btn_create(bottom_bar);
+  lv_obj_set_size(left_btn, 64, 64);
+  lv_obj_align(left_btn, LV_ALIGN_LEFT_MID, 24, 0);
+  lv_obj_set_style_bg_color(left_btn, lv_color_black(), 0);
+  lv_obj_set_style_bg_opa(left_btn, LV_OPA_COVER, 0);
+  lv_obj_set_style_border_color(left_btn, lv_color_white(), 0);
+  lv_obj_set_style_border_width(left_btn, 2, 0);
+  lv_obj_set_style_outline_width(left_btn, 0, 0);
+  lv_obj_set_style_shadow_width(left_btn, 0, 0);
+  lv_obj_set_style_radius(left_btn, 10, 0);
   lv_obj_add_event_cb(left_btn, arrow_left_cb, LV_EVENT_CLICKED, nullptr);
 
   lv_obj_t* left_label = lv_label_create(left_btn);
   lv_label_set_text(left_label, LV_SYMBOL_LEFT);
   lv_obj_set_style_text_color(left_label, lv_color_white(), 0);
-  lv_obj_set_style_text_font(left_label, &lv_font_montserrat_48, 0);
+  lv_obj_set_style_text_font(left_label, &lv_font_montserrat_18, 0);
   lv_obj_center(left_label);
 
-  lv_obj_t* right_btn = lv_btn_create(selector_screen);
-  lv_obj_set_size(right_btn, 70, 70);
-  lv_obj_align(right_btn, LV_ALIGN_RIGHT_MID, -8, 10);
-  lv_obj_set_style_bg_opa(right_btn, LV_OPA_TRANSP, 0);
-  lv_obj_set_style_border_width(right_btn, 0, 0);
+  lv_obj_t* right_btn = lv_btn_create(bottom_bar);
+  lv_obj_set_size(right_btn, 64, 64);
+  lv_obj_align(right_btn, LV_ALIGN_RIGHT_MID, -24, 0);
+  lv_obj_set_style_bg_color(right_btn, lv_color_black(), 0);
+  lv_obj_set_style_bg_opa(right_btn, LV_OPA_COVER, 0);
+  lv_obj_set_style_border_color(right_btn, lv_color_white(), 0);
+  lv_obj_set_style_border_width(right_btn, 2, 0);
+  lv_obj_set_style_outline_width(right_btn, 0, 0);
+  lv_obj_set_style_shadow_width(right_btn, 0, 0);
+  lv_obj_set_style_radius(right_btn, 10, 0);
   lv_obj_add_event_cb(right_btn, arrow_right_cb, LV_EVENT_CLICKED, nullptr);
 
   lv_obj_t* right_label = lv_label_create(right_btn);
   lv_label_set_text(right_label, LV_SYMBOL_RIGHT);
   lv_obj_set_style_text_color(right_label, lv_color_white(), 0);
-  lv_obj_set_style_text_font(right_label, &lv_font_montserrat_48, 0);
+  lv_obj_set_style_text_font(right_label, &lv_font_montserrat_18, 0);
   lv_obj_center(right_label);
 
   update_auton_labels();
@@ -165,11 +232,10 @@ void create_lock_screen() {
   lock_screen = lv_obj_create(nullptr);
   set_screen_bg_black(lock_screen);
 
-  lv_obj_t* lock_title = lv_label_create(lock_screen);
-  lv_label_set_text(lock_title, selector_title.c_str());
-  lv_obj_set_style_text_color(lock_title, lv_color_white(), 0);
-  lv_obj_set_style_text_font(lock_title, &lv_font_montserrat_36, 0);
-  lv_obj_align(lock_title, LV_ALIGN_TOP_MID, 0, 12);
+  lv_obj_t* lock_logo = lv_img_create(lock_screen);
+  lv_img_set_src(lock_logo, &grd_wlkr_img);
+  lv_img_set_zoom(lock_logo, 35);
+  lv_obj_align(lock_logo, LV_ALIGN_TOP_MID, 0, -36);
 
   lv_obj_t* lock_text = lv_label_create(lock_screen);
   lv_label_set_text(lock_text, "AUTO LOCKED");
