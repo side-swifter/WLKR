@@ -20,7 +20,7 @@ void setup(){
   chassis.drive_imu_reset();                  // Reset gyro position to 0
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
   chassis.slew_drive_set(true); // turns on slew for auto (TS is elite)
-  chassis.pid_odom_set({{0_in, 0_in, 0_deg}, drive_directions::forward, 90, ez::shortest}); // Makes sure my odom driving is set correctly and locations are good
+  chassis.pid_odom_set({{0_in, 0_in, 0_deg}, drive_directions::forward, 0, ez::shortest}); // Makes sure my odom driving is set correctly and locations are good
 }
 
 

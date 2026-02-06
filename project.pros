@@ -425,7 +425,7 @@
     },
     "upload_options": {
       "description": "https://gridwalkers.net/",
-      "slot": 2,
+      "slot": 1,
       "icon": "planet"
     },
     "use_early_access": false
