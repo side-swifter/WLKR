@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "0.0.04 GRID WALKER",
+    "project_name": "0.0.08 GRID WALKER",
     "target": "v5",
     "templates": {
       "EZ-Template": {

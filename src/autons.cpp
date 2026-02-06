@@ -26,7 +26,7 @@ void setup(){
 
 void Tuskerpid() {
   // P, I, D, and Start I
-  chassis.pid_drive_constants_set(20.0, 0.0, 100.0);         // Fwd/rev constants, used for odom and non odom motions
+  chassis.pid_drive_constants_set(40.0, 0.0, 0.0);         // Fwd/rev constants, used for odom and non odom motions
   chassis.pid_heading_constants_set(11.0, 0.0, 20.0);        // Holds the robot straight while going forward without odom
   chassis.pid_turn_constants_set(3.0, 0.05, 20.0, 15.0);     // Turn in place constants
   chassis.pid_swing_constants_set(6.0, 0.0, 65.0);           // Swing constants
@@ -139,4 +139,11 @@ void RL() {
 
 
 
+}
+
+void pidtest() {
+  setup();
+
+  chassis.pid_drive_set(48_in, DRIVE_SPEED);
+  chassis.pid_wait();
 }

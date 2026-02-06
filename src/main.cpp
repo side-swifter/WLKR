@@ -2,7 +2,6 @@
 #include "custom_lvgl_selector.hpp"
 
 // Grid Walkers
-constexpr bool USE_CUSTOM_SELECTOR = true;  // true = LVGL selector, false = EZ selector
 
 // Chassis constructor
 ez::Drive chassis(
@@ -17,8 +16,9 @@ ez::Drive chassis(
 // Uncomment the trackers you're using here!  
 //  - you should get positive values on the encoders going FORWARD and RIGHT
 
-ez::tracking_wheel horiz_tracker(19, 2.75, 2.0);  
-ez::tracking_wheel vert_tracker(20, 2.75, 2.0);  
+// Offsets from measure_offsets (inches)
+ez::tracking_wheel horiz_tracker(19, 2.75, -0.191854);  
+ez::tracking_wheel vert_tracker(20, 2.75, -0.000455);  
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -52,17 +52,16 @@ chassis.odom_tracker_back_set(&horiz_tracker);
 
       {"Red Right \n\n Next to the park zone", RL},
       {"Measure Offsets \n\n", measure_offsets},
+      {"PID Test \n\n", pidtest},
 
   });
 
-  // Initialize chassis and auton selector
-  chassis.initialize();
-  if (USE_CUSTOM_SELECTOR) {
-    custom_lvgl::selector_init("Grid Walkers");
-  } else {
-    ez::as::initialize();
-  }
-  master.rumble(chassis.drive_imu_calibrated() ? "." : "---");
+  custom_lvgl::selector_init("Grid Walkers");
+
+  // Initialize chassis without EZ-Template loading bar (after splash)
+  chassis.drive_imu_calibrate(false);
+  chassis.opcontrol_curve_sd_initialize();
+  // IMU calibration happens after the selector/splash.
 }
 
 /**
@@ -118,12 +117,8 @@ void autonomous() {
   to be consistent
   */
 
-  if (USE_CUSTOM_SELECTOR) {
-    custom_lvgl::selector_show_lock();
-    custom_lvgl::selector_selected_auton_call();
-  } else {
-    ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
-  }
+  custom_lvgl::selector_show_splash();
+  custom_lvgl::selector_selected_auton_call();
 }
 
 /**
@@ -146,10 +141,8 @@ void screen_print_tracker(ez::tracking_wheel *tracker, std::string name, int lin
  */
 void ez_screen_task() {
   while (true) {
-    if (USE_CUSTOM_SELECTOR) {
-      pros::delay(ez::util::DELAY_TIME);
-      continue;
-    }
+    pros::delay(ez::util::DELAY_TIME);
+    continue;
     // Only run this when not connected to a competition switch
     if (!pros::competition::is_connected()) {
       // Blank page for odom debugging
@@ -190,7 +183,6 @@ pros::Task ezScreenTask(ez_screen_task);
  * - gives you a GUI to change your PID values live by pressing X
  */
 void ez_template_extras() {
-  if (USE_CUSTOM_SELECTOR) return;
   // Only run this when not connected to a competition switch
   if (!pros::competition::is_connected()) {
     // PID Tuner
@@ -238,9 +230,25 @@ void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
 
+  if (pros::competition::is_connected()) {
+    pros::delay(3000);
+    master.rumble(".");
+  }
+
   while (true) {
     // Gives you some extras to make EZ-Template ezier
     ez_template_extras();
+
+    static bool auton_last = false;
+    bool auton_now =
+        master.get_digital(DIGITAL_DOWN) && master.get_digital(DIGITAL_B);
+    if (!pros::competition::is_connected() && auton_now && !auton_last) {
+      pros::Task([] {
+        autonomous();
+        custom_lvgl::selector_show_selector();
+      });
+    }
+    auton_last = auton_now;
 
 
     chassis.opcontrol_arcade_standard(ez::SPLIT); // cuz we are normal

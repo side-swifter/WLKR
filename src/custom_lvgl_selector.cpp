@@ -16,11 +16,8 @@ constexpr int kScreenH = 272;
 lv_obj_t* splash_screen = nullptr;
 lv_obj_t* selector_screen = nullptr;
 lv_obj_t* lock_screen = nullptr;
+lv_obj_t* splash_bar = nullptr;
 
-lv_obj_t* top_bar = nullptr;
-lv_obj_t* top_title = nullptr;
-lv_obj_t* top_time = nullptr;
-lv_obj_t* top_batt = nullptr;
 lv_obj_t* page_label = nullptr;
 lv_obj_t* card = nullptr;
 lv_obj_t* desc_label = nullptr;
@@ -106,6 +103,14 @@ void create_splash_screen() {
   lv_obj_t* img = lv_img_create(splash_screen);
   lv_img_set_src(img, &splash_img);
   lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
+
+  splash_bar = lv_obj_create(splash_screen);
+  lv_obj_set_size(splash_bar, 80, 4);
+  lv_obj_set_style_bg_color(splash_bar, lv_color_white(), 0);
+  lv_obj_set_style_bg_opa(splash_bar, LV_OPA_COVER, 0);
+  lv_obj_set_style_border_width(splash_bar, 0, 0);
+  lv_obj_set_style_radius(splash_bar, 2, 0);
+  lv_obj_align(splash_bar, LV_ALIGN_BOTTOM_LEFT, 0, -10);
 }
 
 void create_selector_screen() {
@@ -113,36 +118,9 @@ void create_selector_screen() {
   set_screen_bg_black(selector_screen);
   lv_obj_set_style_bg_color(selector_screen, lv_color_black(), 0);
 
-  // Top bar
-  top_bar = lv_obj_create(selector_screen);
-  lv_obj_set_size(top_bar, 480, 32);
-  lv_obj_align(top_bar, LV_ALIGN_TOP_MID, 0, 0);
-  lv_obj_set_style_bg_color(top_bar, lv_color_black(), 0);
-  lv_obj_set_style_bg_opa(top_bar, LV_OPA_COVER, 0);
-  lv_obj_set_style_border_width(top_bar, 0, 0);
-  lv_obj_set_style_radius(top_bar, 0, 0);
-
-  top_title = lv_label_create(top_bar);
-  lv_label_set_text(top_title, "Grid Walkers 29019X");
-  lv_obj_set_style_text_color(top_title, lv_color_white(), 0);
-  lv_obj_set_style_text_font(top_title, &lv_font_montserrat_18, 0);
-  lv_obj_align(top_title, LV_ALIGN_LEFT_MID, 10, 0);
-
-  top_time = lv_label_create(top_bar);
-  lv_label_set_text(top_time, "0:12");
-  lv_obj_set_style_text_color(top_time, lv_color_white(), 0);
-  lv_obj_set_style_text_font(top_time, &lv_font_montserrat_18, 0);
-  lv_obj_align(top_time, LV_ALIGN_TOP_MID, 0, 6);
-
-  top_batt = lv_label_create(top_bar);
-  lv_label_set_text(top_batt, "12.6V");
-  lv_obj_set_style_text_color(top_batt, lv_color_white(), 0);
-  lv_obj_set_style_text_font(top_batt, &lv_font_montserrat_18, 0);
-  lv_obj_align(top_batt, LV_ALIGN_RIGHT_MID, -10, 0);
-
   card = lv_obj_create(selector_screen);
   lv_obj_set_size(card, 440, 150);
-  lv_obj_align(card, LV_ALIGN_TOP_MID, 0, 44);
+  lv_obj_align(card, LV_ALIGN_TOP_MID, 0, 24);
   lv_obj_set_style_bg_color(card, lv_color_black(), 0);
   lv_obj_set_style_bg_opa(card, LV_OPA_COVER, 0);
   lv_obj_set_style_border_color(card, lv_color_white(), 0);
@@ -165,7 +143,7 @@ void create_selector_screen() {
     lv_obj_set_width(auton_lines[i], 420);
     lv_label_set_long_mode(auton_lines[i], LV_LABEL_LONG_WRAP);
   }
-  lv_obj_set_style_text_font(auton_lines[0], &lv_font_montserrat_22, 0);
+  lv_obj_set_style_text_font(auton_lines[0], &lv_font_montserrat_20, 0);
   lv_obj_set_style_text_font(auton_lines[1], &lv_font_montserrat_18, 0);
   lv_obj_set_style_text_font(auton_lines[2], &lv_font_montserrat_18, 0);
   lv_obj_set_style_text_font(auton_lines[3], &lv_font_montserrat_18, 0);
@@ -181,17 +159,9 @@ void create_selector_screen() {
   lv_obj_align(auton_lines[3], LV_ALIGN_TOP_LEFT, 6, 96);
   lv_obj_align(auton_lines[4], LV_ALIGN_TOP_LEFT, 6, 118);
 
-  lv_obj_t* bottom_bar = lv_obj_create(selector_screen);
-  lv_obj_set_size(bottom_bar, 480, 80);
-  lv_obj_align(bottom_bar, LV_ALIGN_BOTTOM_MID, 0, 0);
-  lv_obj_set_style_bg_color(bottom_bar, lv_color_black(), 0);
-  lv_obj_set_style_bg_opa(bottom_bar, LV_OPA_COVER, 0);
-  lv_obj_set_style_border_width(bottom_bar, 0, 0);
-  lv_obj_set_style_radius(bottom_bar, 0, 0);
-
-  lv_obj_t* left_btn = lv_btn_create(bottom_bar);
+  lv_obj_t* left_btn = lv_btn_create(selector_screen);
   lv_obj_set_size(left_btn, 64, 64);
-  lv_obj_align(left_btn, LV_ALIGN_LEFT_MID, 24, 0);
+  lv_obj_align(left_btn, LV_ALIGN_BOTTOM_LEFT, 24, -12);
   lv_obj_set_style_bg_color(left_btn, lv_color_black(), 0);
   lv_obj_set_style_bg_opa(left_btn, LV_OPA_COVER, 0);
   lv_obj_set_style_border_color(left_btn, lv_color_white(), 0);
@@ -207,9 +177,9 @@ void create_selector_screen() {
   lv_obj_set_style_text_font(left_label, &lv_font_montserrat_18, 0);
   lv_obj_center(left_label);
 
-  lv_obj_t* right_btn = lv_btn_create(bottom_bar);
+  lv_obj_t* right_btn = lv_btn_create(selector_screen);
   lv_obj_set_size(right_btn, 64, 64);
-  lv_obj_align(right_btn, LV_ALIGN_RIGHT_MID, -24, 0);
+  lv_obj_align(right_btn, LV_ALIGN_BOTTOM_RIGHT, -24, -12);
   lv_obj_set_style_bg_color(right_btn, lv_color_black(), 0);
   lv_obj_set_style_bg_opa(right_btn, LV_OPA_COVER, 0);
   lv_obj_set_style_border_color(right_btn, lv_color_white(), 0);
@@ -268,7 +238,19 @@ void selector_init(const std::string& title) {
 
   create_splash_screen();
   lv_scr_load(splash_screen);
-  pros::delay(2000);
+  if (splash_bar) {
+    const int bar_w = 80;
+    const int start_x = 10;
+    const int end_x = 480 - bar_w - 10;
+    const int steps = 60;
+    for (int i = 0; i <= steps; i++) {
+      int x = start_x + (end_x - start_x) * i / steps;
+      lv_obj_align(splash_bar, LV_ALIGN_BOTTOM_LEFT, x, -10);
+      pros::delay(2000 / steps);
+    }
+  } else {
+    pros::delay(2000);
+  }
 
   create_selector_screen();
   lv_scr_load(selector_screen);
@@ -277,6 +259,16 @@ void selector_init(const std::string& title) {
 void selector_show_lock() {
   if (!lock_screen) create_lock_screen();
   lv_scr_load(lock_screen);
+}
+
+void selector_show_splash() {
+  if (!splash_screen) create_splash_screen();
+  lv_scr_load(splash_screen);
+}
+
+void selector_show_selector() {
+  if (!selector_screen) create_selector_screen();
+  lv_scr_load(selector_screen);
 }
 
 int selector_selected_index() { return selected_index; }
