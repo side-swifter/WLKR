@@ -50,6 +50,7 @@ chassis.odom_tracker_back_set(&horiz_tracker);
 
       {"Red Right \n\n Next to the park zone", RL},
       {"Measure Offsets \n\n", measure_offsets},
+      {"PID Test \n\n", pidtest},
 
   });
 
