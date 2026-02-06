@@ -43,3 +43,7 @@ TEMPLATE_FILES=$(INCDIR)/**/*.h $(INCDIR)/**/*.hpp
 ################################################################################
 ########## Nothing below this line should be edited by typical users ###########
 -include ./common.mk
+
+.PHONY: bump-upload bu
+bump-upload bu:
+	@bash tools/bump_build_upload.sh

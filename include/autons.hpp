@@ -1,12 +1,4 @@
 #pragma once
 
-
-// My PID constants
-void Tuskerpid();
-
-
-
-// my acc autos
-void RL();
-void measure_offsets();
-void pidtest();
+#include "auton_routines.hpp"
+#include "auton_utils.hpp"

@@ -65,6 +65,21 @@ chassis.odom_tracker_back_set(&horiz_tracker);
 }
 
 /**
+ * Simple odom debug page on the brain LCD
+ */
+void odom_debug_task() {
+  pros::lcd::initialize();
+  while (true) {
+    pros::lcd::set_text(0, "ODOM");
+    pros::lcd::set_text(1, "x: " + util::to_string_with_precision(chassis.odom_x_get()));
+    pros::lcd::set_text(2, "y: " + util::to_string_with_precision(chassis.odom_y_get()));
+    pros::lcd::set_text(3, "a: " + util::to_string_with_precision(chassis.odom_theta_get()));
+    pros::delay(100);
+  }
+}
+pros::Task odomDebugTask(odom_debug_task);
+
+/**
  * Runs while the robot is in the disabled state of Field Management System or
  * the VEX Competition Switch, following either autonomous or opcontrol. When
  * the robot is enabled, this task will exit.
