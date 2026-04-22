@@ -256,10 +256,11 @@ void selector_init(const std::string& title) {
     for (int i = 0; i <= steps; i++) {
       int x = start_x + (end_x - start_x) * i / steps;
       lv_obj_align(splash_bar, LV_ALIGN_BOTTOM_LEFT, x, -10);
-      pros::delay(2000 / steps);
+      pros::delay(3000 / steps);
     }
+    lv_obj_add_flag(splash_bar, LV_OBJ_FLAG_HIDDEN);
   } else {
-    pros::delay(2000);
+    pros::delay(3000);
   }
 }
 
