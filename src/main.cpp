@@ -245,8 +245,10 @@ void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
 
-  // Limit speed for outreach mode (50% speed)
-  chassis.opcontrol_curve_default_set(0.5, 0.5);
+  // Speed control for outreach mode
+  int speed_mode = 0; // 0 = 50%, 1 = 70%, 2 = 100%
+  double speed_values[] = {0.5, 0.7, 1.0};
+  chassis.opcontrol_curve_default_set(speed_values[speed_mode], speed_values[speed_mode]);
 
   if (pros::competition::is_connected()) {
     pros::delay(3000);
@@ -268,6 +270,15 @@ void opcontrol() {
     }
     auton_last = auton_now;
 
+    // Speed toggle with A button (50% -> 70% -> 100%)
+    static bool speed_toggle_last = false;
+    bool speed_toggle_now = master.get_digital(DIGITAL_A);
+    if (speed_toggle_now && !speed_toggle_last) {
+      speed_mode = (speed_mode + 1) % 3;
+      chassis.opcontrol_curve_default_set(speed_values[speed_mode], speed_values[speed_mode]);
+      master.rumble("-");
+    }
+    speed_toggle_last = speed_toggle_now;
 
     chassis.opcontrol_arcade_standard(ez::SPLIT); // cuz we are normal
 
