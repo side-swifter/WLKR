@@ -245,6 +245,9 @@ void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
 
+  // Limit speed for outreach mode (50% speed)
+  chassis.opcontrol_curve_default_set(0.5, 0.5);
+
   if (pros::competition::is_connected()) {
     pros::delay(3000);
     master.rumble(".");
@@ -300,7 +303,7 @@ void opcontrol() {
     switcher.button_toggle(master.get_digital(DIGITAL_L2)); 
 
     // descore
-    descore.button_toggle(master.get_digital(DIGITAL_RIGHT));
+    descore.button_toggle(master.get_digital(DIGITAL_UP));
 
 
 
