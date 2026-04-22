@@ -261,9 +261,6 @@ void selector_init(const std::string& title) {
   } else {
     pros::delay(2000);
   }
-
-  create_logo_screen();
-  lv_scr_load(logo_screen);
 }
 
 void selector_show_lock() {
