@@ -16,6 +16,7 @@ constexpr int kScreenH = 272;
 lv_obj_t* splash_screen = nullptr;
 lv_obj_t* selector_screen = nullptr;
 lv_obj_t* lock_screen = nullptr;
+lv_obj_t* logo_screen = nullptr;
 lv_obj_t* splash_bar = nullptr;
 
 lv_obj_t* page_label = nullptr;
@@ -198,6 +199,15 @@ void create_selector_screen() {
   update_auton_labels();
 }
 
+void create_logo_screen() {
+  logo_screen = lv_obj_create(nullptr);
+  set_screen_bg_black(logo_screen);
+
+  lv_obj_t* logo = lv_img_create(logo_screen);
+  lv_img_set_src(logo, &grd_wlkr_img);
+  lv_obj_align(logo, LV_ALIGN_CENTER, 0, 0);
+}
+
 void create_lock_screen() {
   lock_screen = lv_obj_create(nullptr);
   set_screen_bg_black(lock_screen);
@@ -252,8 +262,8 @@ void selector_init(const std::string& title) {
     pros::delay(2000);
   }
 
-  create_selector_screen();
-  lv_scr_load(selector_screen);
+  create_logo_screen();
+  lv_scr_load(logo_screen);
 }
 
 void selector_show_lock() {
