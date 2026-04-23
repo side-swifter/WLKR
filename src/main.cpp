@@ -114,7 +114,7 @@ void competition_initialize() {
  */
 void autonomous() {
   chassis.pid_targets_reset();                // Resets PID targets to 0
-  chassis.drive_imu_reset();                  // Reset gyro position to 0
+  // IMU already calibrated in initialize() - no need to reset (saves ~1 second delay)
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);    // Set the current position, you can start at a specific position with this
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
@@ -132,7 +132,7 @@ void autonomous() {
   to be consistent
   */
 
-  custom_lvgl::selector_show_splash();
+  // Directly call autonomous routine without screen switching (saves delay)
   custom_lvgl::selector_selected_auton_call();
 }
 
